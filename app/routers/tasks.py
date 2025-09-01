@@ -8,6 +8,7 @@ from app.repositories.project_member_repository import ProjectMemberRepository
 from app.repositories.user_repository import UserRepository
 from app.core.deps import get_current_user
 from app.models.task import TaskStatus, TaskPriority
+from app.services.notification_service import NotificationService
 
 router = APIRouter()
 
@@ -20,14 +21,21 @@ def create_task(project_id: int, payload: TaskCreate, db: Session = Depends(get_
         raise HTTPException(status_code=403, detail="You are not a project member")
 
     # Assignee validation
+    assignee = None
     if payload.assignee_id is not None:
-        if payload.assignee_id != current_user.id and current_user.role.value not in ("admin", "manager"):
-            raise HTTPException(status_code=403, detail="You can only assign tasks to yourself")
+        if current_user.role.value == "member":
+            raise HTTPException(status_code=403, detail="Only Admin/Manager can assign tasks to others")
         assignee = UserRepository.get_by_id(db, payload.assignee_id)
         if not assignee or assignee.org_id != current_user.org_id:
             raise HTTPException(status_code=404, detail="Assignee not found")
+        
+    task = TaskRepository.create(db, project_id, payload)
+    
+    # Notification
+    if assignee:
+        NotificationService.create_assignment_notification(db, task, assignee)
 
-    return TaskRepository.create(db, project_id, payload)
+    return task
 
 @router.get("/projects/{project_id}/tasks", response_model=list[TaskOut])
 def list_tasks(project_id: int, status: TaskStatus | None = None, assignee_id: int | None = None, priority: TaskPriority | None = None, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
@@ -57,9 +65,12 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
         raise HTTPException(status_code=403, detail="You are not a project member")
 
     # Assignee check
+    assignee = None
+    old_assignee_id = task.assignee_id
+    old_status_value = task.status.value
     if payload.assignee_id is not None:
-        if payload.assignee_id != current_user.id and current_user.role.value not in ("admin", "manager"):
-            raise HTTPException(status_code=403, detail="You can only assign to yourself")
+        if current_user.role.value == "member":
+            raise HTTPException(status_code=403, detail="Only Admin/Manager can assign tasks to others")
         assignee = UserRepository.get_by_id(db, payload.assignee_id)
         if not assignee or assignee.org_id != current_user.org_id:
             raise HTTPException(status_code=404, detail="Assignee not found")
@@ -69,5 +80,15 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
     if payload.status:
         if status_order[payload.status.value] < status_order[task.status.value]:
             raise HTTPException(status_code=400, detail="Status cannot move backward")
+        NotificationService.create_status_change_notification(db, task)
+        
+    task = TaskRepository.update(db, task, payload)
 
-    return TaskRepository.update(db, task, payload)
+    # Notifications
+    if assignee and task.assignee_id != old_assignee_id:
+        NotificationService.create_assignment_notification(db, task, assignee)
+
+    if payload.status is not None and task.status.value != old_status_value:
+        NotificationService.create_status_change_notification(db, task)
+
+    return task
