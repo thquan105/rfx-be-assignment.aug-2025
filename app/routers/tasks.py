@@ -18,7 +18,9 @@ def create_task(project_id: int, payload: TaskCreate, db: Session = Depends(get_
     if not project or project.org_id != current_user.org_id:
         raise HTTPException(status_code=404, detail="Project not found")
     if not ProjectMemberRepository.is_member(db, project_id, current_user.id):
-        raise HTTPException(status_code=403, detail="You are not a project member")
+        raise HTTPException(status_code=403, detail="You are not a project member")    
+    if current_user.role.value == "member":
+        raise HTTPException(status_code=403, detail="Members cannot create tasks")
 
     # Assignee validation
     assignee = None
@@ -63,7 +65,12 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="Task not found")
     if not ProjectMemberRepository.is_member(db, task.project_id, current_user.id):
         raise HTTPException(status_code=403, detail="You are not a project member")
-
+    if current_user.role.value == "member":
+        if any(
+            getattr(payload, field) is not None
+            for field in ["title", "description", "priority", "due_date", "assignee_id"]
+        ):
+            raise HTTPException(status_code=403, detail="Members can only update status")
     # Assignee check
     assignee = None
     old_assignee_id = task.assignee_id
