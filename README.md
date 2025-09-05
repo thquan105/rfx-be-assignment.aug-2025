@@ -123,3 +123,69 @@
 ### **D6. Documentation**
 - [ ] README with setup guide.  
 - [ ] API documentation (Swagger UI).
+
+---
+
+## **E. Diagrams**
+
+### **E1. ER diagram**
+
+![](./docs/ER_diagram.png)
+
+### **E2. System Design Diagrams**
+
+![](./docs/System_Design_Diagrams.png)
+
+---
+
+## **F. Setup Guide**
+
+- Prerequisites: Python 3.11+, `pip`, Git. Optional: Docker + Docker Compose, `just`.
+- Two ways to run: Local Python (recommended for dev) or full Docker.
+
+### **F1. Environment Variables (`.env`)**
+- Copy `env.example` to `.env` and adjust values for your environment.
+- When using Docker Compose, use service hostnames (e.g., `postgres`, `redis`).
+
+### **F2. Option A — Local Development (Python)**
+- Create and activate a virtualenv:
+  - macOS/Linux: `python3 -m venv venv && source venv/bin/activate`
+  - Windows (PowerShell): `py -m venv venv; ./venv/Scripts/Activate.ps1`
+- Install deps: `pip install -r requirements-dev.txt`
+- Start Postgres and Redis (choose one):
+  - Using Docker for services only: `docker compose up -d postgres redis`
+  - Or use your local Postgres/Redis and ensure `.env` points to them.
+- Initialize DB and run migrations: `just setup-db` (or `alembic upgrade head`)
+- Seed sample data (optional): `just seed`
+- Run the API: `just run` → http://localhost:8000/docs
+- Run tests: `just test` (or coverage HTML: `just test-cov`)
+
+### **F3. Option B — Full Docker (API + DB + Redis + Nginx)**
+- Ensure `.env` uses service hostnames (`postgres`, `redis`).
+- Start stack: `docker compose up -d --build`
+- Initialize DB inside the backend container:
+  - `docker exec -it task-backend python scripts/setup_db.py`
+- Seed sample data (optional):
+  - `docker exec -it task-backend python scripts/seed.py`
+- Open API via Nginx: http://localhost and docs at http://localhost/docs
+- Logs (follow): `docker compose logs -f`
+- Stop: `docker compose down`
+
+### **F4. Default Seeded Accounts**
+- Org: "RFX DN" and "OtherOrg" created.
+- Users (password for all: `password`):
+  - Admin: `admin@example.com`
+  - Manager: `manager@example.com`
+  - Members: `member0@example.com` … `member5@example.com`
+
+### **F5. Useful `just` Commands**
+- `just` (no args): lists commands
+- `just dev-setup`: installs dev deps, sets up DB, seeds
+- `just run`: starts FastAPI (reload) on `:8000`
+- `just db-migrate message="add table"`: create Alembic revision
+- `just db-upgrade`: apply latest migrations
+- `just format` / `just lint` / `just type-check`: code quality
+
+### **F6. Troubleshooting**
+- Migrations not applied: run `alembic upgrade head` (or `just setup-db`).
+- Uploads: ensure `uploads/` exists and is writable.
