@@ -1,6 +1,8 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.orm import Session
+
 from app.models.task import Task
+
 
 class ReportRepository:
     @staticmethod
@@ -17,6 +19,10 @@ class ReportRepository:
     def get_overdue_tasks(db: Session, project_id: int, today):
         return (
             db.query(Task)
-            .filter(Task.project_id == project_id, Task.due_date < today, Task.status != "done")
+            .filter(
+                Task.project_id == project_id,
+                Task.due_date < today,
+                Task.status != "done",
+            )
             .all()
         )

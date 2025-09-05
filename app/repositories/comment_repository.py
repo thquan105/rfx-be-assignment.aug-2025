@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
+
 from app.models.comment import Comment
+
 
 class CommentRepository:
     @staticmethod
@@ -12,4 +14,9 @@ class CommentRepository:
 
     @staticmethod
     def list_by_task(db: Session, task_id: int) -> list[Comment]:
-        return db.query(Comment).filter(Comment.task_id == task_id).order_by(Comment.created_at.asc()).all()
+        return (
+            db.query(Comment)
+            .filter(Comment.task_id == task_id)
+            .order_by(Comment.created_at.asc())
+            .all()
+        )

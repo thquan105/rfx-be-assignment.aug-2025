@@ -1,16 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
+from app.core.deps import get_current_user
 from app.database import get_db
+from app.models.task import Task
+from app.repositories.project_member_repository import ProjectMemberRepository
 from app.schemas.comment import CommentCreate, CommentRead
 from app.services.comment_service import CommentService
-from app.models.task import Task
-from app.core.deps import get_current_user
-from app.repositories.project_member_repository import ProjectMemberRepository
 
 router = APIRouter()
 
+
 @router.post("/tasks/{task_id}/comments", response_model=CommentRead)
-def add_comment(task_id: int, comment_in: CommentCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def add_comment(
+    task_id: int,
+    comment_in: CommentCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -20,8 +27,11 @@ def add_comment(task_id: int, comment_in: CommentCreate, db: Session = Depends(g
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
 
+
 @router.get("/tasks/{task_id}/comments", response_model=list[CommentRead])
-def list_comments(task_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def list_comments(
+    task_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)
+):
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")

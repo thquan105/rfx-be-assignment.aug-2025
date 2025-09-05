@@ -1,7 +1,9 @@
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
-from sqlalchemy import select, delete
+
 from app.models.project import ProjectMember
 from app.models.user import User
+
 
 class ProjectMemberRepository:
     @staticmethod
@@ -15,8 +17,7 @@ class ProjectMemberRepository:
     @staticmethod
     def remove_member(db: Session, *, project_id: int, user_id: int):
         stmt = delete(ProjectMember).where(
-            ProjectMember.project_id == project_id,
-            ProjectMember.user_id == user_id
+            ProjectMember.project_id == project_id, ProjectMember.user_id == user_id
         )
         db.execute(stmt)
         db.commit()
@@ -32,8 +33,7 @@ class ProjectMemberRepository:
 
     @staticmethod
     def is_member(db: Session, project_id: int, user_id: int) -> bool:
-        stmt = (
-            select(ProjectMember)
-            .where(ProjectMember.project_id == project_id, ProjectMember.user_id == user_id)
+        stmt = select(ProjectMember).where(
+            ProjectMember.project_id == project_id, ProjectMember.user_id == user_id
         )
         return db.execute(stmt).scalar_one_or_none() is not None

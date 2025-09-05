@@ -1,10 +1,14 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from app.models.project import Project
+
 
 class ProjectRepository:
     @staticmethod
-    def create(db: Session, *, name: str, description: str | None, org_id: int) -> Project:
+    def create(
+        db: Session, *, name: str, description: str | None, org_id: int
+    ) -> Project:
         project = Project(name=name, description=description, org_id=org_id)
         db.add(project)
         db.commit()

@@ -1,7 +1,9 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from app.models.user import User, UserRole
 from app.utils.security import hash_password
+
 
 class UserRepository:
     """Data access layer for users."""
@@ -21,7 +23,15 @@ class UserRepository:
         return list(db.execute(stmt).scalars().all())
 
     @staticmethod
-    def create_in_org(db: Session, *, org_id: int, email: str, password: str, full_name: str | None, role: str) -> User:
+    def create_in_org(
+        db: Session,
+        *,
+        org_id: int,
+        email: str,
+        password: str,
+        full_name: str | None,
+        role: str
+    ) -> User:
         user = User(
             org_id=org_id,
             email=email,

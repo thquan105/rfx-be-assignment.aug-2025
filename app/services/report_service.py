@@ -1,6 +1,9 @@
 from datetime import date
+
 from sqlalchemy.orm import Session
+
 from app.repositories.report_repository import ReportRepository
+
 
 class ReportService:
     @staticmethod

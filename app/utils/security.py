@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
+
 from jose import jwt
 from passlib.context import CryptContext
+
 from app.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -21,7 +23,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(*, sub: str, org_id: int, role: str, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(
+    *, sub: str, org_id: int, role: str, expires_delta: Optional[timedelta] = None
+) -> str:
     """Create a signed JWT access token with standard claims.
 
     sub: subject (user id as string)

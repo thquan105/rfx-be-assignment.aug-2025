@@ -1,6 +1,7 @@
+from datetime import date
+
 import pytest
 from httpx import AsyncClient
-from datetime import date
 
 
 async def setup_project_with_tasks(client: AsyncClient):

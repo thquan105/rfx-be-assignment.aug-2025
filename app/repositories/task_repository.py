@@ -1,7 +1,9 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import select
-from app.models.task import Task, TaskStatus, TaskPriority
+from sqlalchemy.orm import Session
+
+from app.models.task import Task, TaskPriority, TaskStatus
 from app.schemas.task import TaskCreate, TaskUpdate
+
 
 class TaskRepository:
     @staticmethod

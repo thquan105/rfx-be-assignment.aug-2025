@@ -1,4 +1,5 @@
 import io
+
 import pytest
 from httpx import AsyncClient
 
@@ -7,7 +8,11 @@ async def setup_project_and_task(client: AsyncClient):
     # Register admin
     resp = await client.post(
         "/api/v1/auth/register",
-        json={"org_name": "OrgAttachments", "email": "adminattach@example.com", "password": "password123"}
+        json={
+            "org_name": "OrgAttachments",
+            "email": "adminattach@example.com",
+            "password": "password123",
+        },
     )
     admin_token = resp.json()["token"]["access_token"]
 
@@ -15,7 +20,7 @@ async def setup_project_and_task(client: AsyncClient):
     resp_proj = await client.post(
         "/api/v1/projects",
         json={"name": "AttachProj"},
-        headers={"Authorization": f"Bearer {admin_token}"}
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     project_id = resp_proj.json()["id"]
 
@@ -23,7 +28,7 @@ async def setup_project_and_task(client: AsyncClient):
     resp_task = await client.post(
         f"/api/v1/projects/{project_id}/tasks",
         json={"title": "Task for attachments"},
-        headers={"Authorization": f"Bearer {admin_token}"}
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     task_id = resp_task.json()["id"]
 
@@ -37,8 +42,12 @@ async def test_member_upload_attachment_success(client: AsyncClient):
     # Create member
     resp_member = await client.post(
         "/api/v1/users",
-        json={"email": "uploader@example.com", "password": "password123", "role": "member"},
-        headers={"Authorization": f"Bearer {admin_token}"}
+        json={
+            "email": "uploader@example.com",
+            "password": "password123",
+            "role": "member",
+        },
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     member_id = resp_member.json()["id"]
 
@@ -46,13 +55,13 @@ async def test_member_upload_attachment_success(client: AsyncClient):
     await client.post(
         f"/api/v1/projects/{project_id}/members",
         json={"user_ids": [member_id]},
-        headers={"Authorization": f"Bearer {admin_token}"}
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
 
     # Login as member
     resp_login = await client.post(
         "/api/v1/auth/login",
-        json={"email": "uploader@example.com", "password": "password123"}
+        json={"email": "uploader@example.com", "password": "password123"},
     )
     token = resp_login.json()["access_token"]
 

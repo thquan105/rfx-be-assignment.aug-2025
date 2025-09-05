@@ -6,7 +6,11 @@ async def setup_project_and_task(client: AsyncClient):
     # Register admin
     resp = await client.post(
         "/api/v1/auth/register",
-        json={"org_name": "OrgComments", "email": "admincomments@example.com", "password": "password123"}
+        json={
+            "org_name": "OrgComments",
+            "email": "admincomments@example.com",
+            "password": "password123",
+        },
     )
     admin_token = resp.json()["token"]["access_token"]
 
@@ -14,7 +18,7 @@ async def setup_project_and_task(client: AsyncClient):
     resp_proj = await client.post(
         "/api/v1/projects",
         json={"name": "CommentProj"},
-        headers={"Authorization": f"Bearer {admin_token}"}
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     project_id = resp_proj.json()["id"]
 
@@ -22,7 +26,7 @@ async def setup_project_and_task(client: AsyncClient):
     resp_task = await client.post(
         f"/api/v1/projects/{project_id}/tasks",
         json={"title": "Task for comments"},
-        headers={"Authorization": f"Bearer {admin_token}"}
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     task_id = resp_task.json()["id"]
 
@@ -36,8 +40,12 @@ async def test_member_add_comment_success(client: AsyncClient):
     # Create member
     resp_member = await client.post(
         "/api/v1/users",
-        json={"email": "commenter@example.com", "password": "password123", "role": "member"},
-        headers={"Authorization": f"Bearer {admin_token}"}
+        json={
+            "email": "commenter@example.com",
+            "password": "password123",
+            "role": "member",
+        },
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     member_id = resp_member.json()["id"]
 
@@ -45,13 +53,13 @@ async def test_member_add_comment_success(client: AsyncClient):
     await client.post(
         f"/api/v1/projects/{project_id}/members",
         json={"user_ids": [member_id]},
-        headers={"Authorization": f"Bearer {admin_token}"}
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
 
     # Login as member
     resp_login = await client.post(
         "/api/v1/auth/login",
-        json={"email": "commenter@example.com", "password": "password123"}
+        json={"email": "commenter@example.com", "password": "password123"},
     )
     token = resp_login.json()["access_token"]
 
@@ -59,7 +67,7 @@ async def test_member_add_comment_success(client: AsyncClient):
     resp = await client.post(
         f"/api/v1/tasks/{task_id}/comments",
         json={"content": "Nice work"},
-        headers={"Authorization": f"Bearer {token}"}
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert resp.status_code == 200
     assert resp.json()["content"] == "Nice work"

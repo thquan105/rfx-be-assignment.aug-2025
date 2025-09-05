@@ -1,12 +1,15 @@
 import os
 from uuid import uuid4
-from fastapi import UploadFile, HTTPException
+
+from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
+
 from app.config import settings
-from app.repositories.attachment_repository import AttachmentRepository
-from app.repositories.project_member_repository import ProjectMemberRepository
 from app.models.task import Task
 from app.models.user import User
+from app.repositories.attachment_repository import AttachmentRepository
+from app.repositories.project_member_repository import ProjectMemberRepository
+
 
 class AttachmentService:
     @staticmethod

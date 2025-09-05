@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from pydantic import BaseModel
+
 
 class AttachmentRead(BaseModel):
     id: int
@@ -9,6 +11,4 @@ class AttachmentRead(BaseModel):
     file_size: int
     created_at: datetime
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}

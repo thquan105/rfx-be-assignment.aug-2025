@@ -1,6 +1,9 @@
 from datetime import datetime
+
 from pydantic import BaseModel
+
 from app.models.notification import NotificationType
+
 
 class NotificationRead(BaseModel):
     id: int
@@ -11,6 +14,4 @@ class NotificationRead(BaseModel):
     task_id: int | None
     created_at: datetime
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}

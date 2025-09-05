@@ -1,8 +1,11 @@
 # app/schemas/task.py
-from pydantic import BaseModel, field_validator
-from typing import Optional
 from datetime import date
-from app.models.task import TaskStatus, TaskPriority
+from typing import Optional
+
+from pydantic import BaseModel, field_validator
+
+from app.models.task import TaskPriority, TaskStatus
+
 
 class TaskCreate(BaseModel):
     title: str
@@ -17,6 +20,7 @@ class TaskCreate(BaseModel):
         if v is not None and v < date.today():
             raise ValueError("Due date cannot be in the past")
         return v
+
 
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
@@ -33,6 +37,7 @@ class TaskUpdate(BaseModel):
             raise ValueError("Due date cannot be in the past")
         return v
 
+
 class TaskOut(BaseModel):
     id: int
     project_id: int
@@ -43,6 +48,4 @@ class TaskOut(BaseModel):
     status: TaskStatus
     due_date: Optional[date]
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}

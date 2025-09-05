@@ -84,11 +84,15 @@ async def test_admin_assign_task(client: AsyncClient):
     assert resp_task.status_code == 200
     assert resp_task.json()["assignee_id"] == member_id
 
+
 @pytest.mark.asyncio
 async def test_get_task_not_found(client: AsyncClient):
     token, _ = await register_and_login(client, "tasknf@example.com")
-    resp = await client.get("/api/v1/tasks/9999", headers={"Authorization": f"Bearer {token}"})
+    resp = await client.get(
+        "/api/v1/tasks/9999", headers={"Authorization": f"Bearer {token}"}
+    )
     assert resp.status_code == 404
+
 
 @pytest.mark.asyncio
 async def test_update_status_forward_and_backward(client: AsyncClient):

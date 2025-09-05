@@ -3,17 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
-from app.routers import (
-    auth,
-    users,
-    organizations,
-    projects,
-    tasks,
-    comments,
-    attachments,
-    notifications,
-    reports,
-)
+from app.routers import (attachments, auth, comments, notifications,
+                         organizations, projects, reports, tasks, users)
 
 app = FastAPI(
     title="Task Management API",
@@ -53,7 +44,7 @@ async def root():
         "message": "Task Management API",
         "version": "1.0.0",
         "docs": "/docs",
-        "redoc": "/redoc"
+        "redoc": "/redoc",
     }
 
 

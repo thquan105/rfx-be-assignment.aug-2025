@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
+
+from app.models.notification import NotificationType
 from app.models.task import Task
 from app.models.user import User
-from app.models.notification import NotificationType
 from app.repositories.notification_repository import NotificationRepository
+
 
 class NotificationService:
     @staticmethod
